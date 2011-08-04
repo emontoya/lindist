@@ -1,0 +1,11 @@
+# vim temporal files
+*~
+*.swp
+
+# build files
+*.o
+*.so
+*.gch
+
+# Lighttpd directory
+lighttpd-1.4.29
