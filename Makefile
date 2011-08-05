@@ -3,6 +3,9 @@
 # Kernel directory
 KERNEL_DIR=$(shell pwd)/linux-2.6.29
 
+# lighttpd directory
+LIGHTTPD_DIR=$(shell pwd)/lighttpd-1.4.29
+
 # Set and export the cross compiler default path
 CC_PATH=/opt/arm-2009q1
 export CC_PATH
