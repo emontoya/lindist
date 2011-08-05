@@ -1,7 +1,9 @@
-
+- The following programs are required to be installed:
+  - quilt
+  - mkimage
 - The system expects the following directory structure under the target directory:
 
-lighttpd-1.4.29/   source:http://download.lighttpd.net/lighttpd/releases-1.4.x/lighttpd-1.4.29.tar.gz
-
+  lighttpd-1.4.29/   source:http://download.lighttpd.net/lighttpd/releases-1.4.x/lighttpd-1.4.29.tar.gz
+  linux-2.6.29/      source: Provided as course materials
 
 - The toolchain is expected to be located at /opt/arm-2009q1 according to the project specification.
