@@ -17,7 +17,7 @@ export CROSS_COMPILE
 all: kernel
 
 kernel: FORCE
-	cd ${KERNEL_DIR} && quilt push -a && $(MAKE)
+	cd ${KERNEL_DIR} && quilt push -a && $(MAKE) && make uImage
 
 # Target to enforce the initialization
 FORCE:
