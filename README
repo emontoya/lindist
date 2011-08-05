@@ -1,6 +1,7 @@
 - The following programs are required to be installed:
   - quilt
   - mkimage
+  - wget
 - The system expects the following directory structure under the target directory:
   linux-2.6.29/      source: Provided as course materials
 
