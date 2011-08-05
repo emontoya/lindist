@@ -7,8 +7,9 @@
 *.so
 *.gch
 
-# Lighttpd directory
+# Lighttpd directory and tar file
 lighttpd-1.4.29
+lighttpd-1.4.29.tar.gz
 
 # Linux kernel source code
 linux-2.6.29

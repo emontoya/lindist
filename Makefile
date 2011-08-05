@@ -1,10 +1,12 @@
-.PHONY: FORCE all kernel
+.PHONY: FORCE all kernel lighttpd
 
 # Kernel directory
 KERNEL_DIR=$(shell pwd)/linux-2.6.29
 
 # lighttpd directory
-LIGHTTPD_DIR=$(shell pwd)/lighttpd-1.4.29
+LIGHTTPD_VER=lighttpd-1.4.29
+LIGHTTPD_DIR=$(shell pwd)/${LIGHTTPD_VER}
+LIGHTTPD_TAR=${LIGHTTPD_VER}.tar.gz
 
 # Set and export the cross compiler default path
 CC_PATH=/opt/arm-2009q1
@@ -17,10 +19,16 @@ export PATH := ${CC_PATH}/bin:$(PATH)
 CROSS_COMPILE ?= arm-none-linux-gnueabi-
 export CROSS_COMPILE
 
-all: kernel
+all: kernel lighttpd
 
 kernel: FORCE
 	cd ${KERNEL_DIR} && quilt push -a && $(MAKE) && make uImage
+
+lighttpd: 
+	@(test -d ${LIGHTTPD_VER} || \
+	((test -e ${LIGHTTPD_TAR} || wget http://download.lighttpd.net/lighttpd/releases-1.4.x/${LIGHTTPD_TAR} )\
+ 	&& tar -xzvf ${LIGHTTPD_TAR} && rm -f ${LIGHTTPD_TAR}))
+	@echo "Lighttp cross compiled"
 
 # Target to enforce the initialization
 FORCE:
