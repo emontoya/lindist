@@ -1,8 +1,15 @@
-- The following programs are required to be installed:
+To run this script the following requirements are needed:
+
+1. The following programs are required to be installed:
   - quilt
   - mkimage
   - wget
-- The system expects the following directory structure under the target directory:
+  - tar
+  - mknod
+
+2. The system expects the following directory structure under the target directory:
   linux-2.6.29/      source: Provided as course materials
 
-- The toolchain is expected to be located at /opt/arm-2009q1 according to the project specification.
+3. The toolchain is expected to be located at /opt/arm-2009q1 according to the project specification.
+
+4. This script has to be ran with Super User permissions. This is needed to create the devices with mknod. 
