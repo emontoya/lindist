@@ -52,6 +52,27 @@ busybox:
 	tar xvjf ${BUSYBOX_TAR}
 	cd ${BUSYBOX_DIR}
 
+# Creation of the needed devices with mknod
+devices:
+	mknod mem c 1 1
+	chmod 600 mem
+	mknod null c 1 3
+	chmod 666 null
+	mknod zero c 1 5
+	chmod 666 zero
+	mknod random c 1 8
+	chmod 644 random
+	mknod tty0 c 4 0
+	chmod 600 tty0
+	mknod tty1 c 4 1
+	chmod 600 tty1
+	mknod ttyS0 c 4 64
+	chmod 600 ttyS0
+	mknod tty c 5 0
+	chmod 666 tty
+	mknod console c 5 1
+	chmod 600 console
+
 # Target to enforce the initialization
 FORCE:
 	cd ${KERNEL_DIR} && quilt pop -a
@@ -61,3 +82,12 @@ FORCE:
 clean:
 	rm -f ${BUSYBOX_TAR}
 	rm -fr ${BUSYBOX_DIR}
+	rm -fr mem
+	rm -fr null
+	rm -fr zero
+	rm -fr random
+	rm -fr tty0
+	rm -fr tty1
+	rm -fr ttyS0
+	rm -fr tty
+	rm -fr console
