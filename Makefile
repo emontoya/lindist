@@ -28,7 +28,8 @@ lighttpd:
 	@(test -d ${LIGHTTPD_VER} || \
 	((test -e ${LIGHTTPD_TAR} || wget http://download.lighttpd.net/lighttpd/releases-1.4.x/${LIGHTTPD_TAR} )\
  	&& tar -xzvf ${LIGHTTPD_TAR} && rm -f ${LIGHTTPD_TAR}))
-	@echo "Lighttp cross compiled"
+	cd ${LIGHTTPD_DIR} && ./configure --prefix=/usr/bin --host=arm-none-linux-gnueabi --without-pcre --without-zlib --without-bzip2
+
 
 # Target to enforce the initialization
 FORCE:
