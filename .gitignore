@@ -13,3 +13,6 @@ lighttpd-1.4.29.tar.gz
 
 # Linux kernel source code
 linux-2.6.29
+
+# File system root directory
+fs
