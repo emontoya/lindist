@@ -1,4 +1,4 @@
-.PHONY: all kernel lighttpd fileSystem clean FORCE
+.PHONY: all kernel lighttpd fileSystem clean
 
 # File System root directory
 FS_ROOTD=$(shell pwd)/fs
@@ -39,8 +39,9 @@ export BUSYBOX_URL
 
 all: fileSystem kernel lighttpd
 
-kernel: FORCE fileSystem
-	cd ${KERNEL_DIR} && quilt push -a && $(MAKE) && make uImage
+kernel: fileSystem
+	-cd ${KERNEL_DIR} && quilt push -a 
+	cd ${KERNEL_DIR}&& $(MAKE) && make uImage
 
 lighttpd: fileSystem 
 	@(test -d ${LIGHTTPD_VER} || \
@@ -107,6 +108,6 @@ clean:
 	rm -fr ttyS0
 	rm -fr tty
 	rm -fr console
-	cd ${KERNEL_DIR} && quilt pop -a
+	-cd ${KERNEL_DIR} && quilt pop -a
 	-rm -Rf fs
-	-rm -Rf lighttp-1.4.29
+	-rm -Rf lighttpd-1.4.29
