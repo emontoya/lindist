@@ -1,4 +1,7 @@
-.PHONY: FORCE all kernel lighttpd
+.PHONY: all kernel lighttpd fileSystem clean FORCE
+
+# File System root directory
+FS_ROOTD=$(shell pwd)/fs
 
 # Kernel directory
 KERNEL_DIR=$(shell pwd)/linux-2.6.29
@@ -34,16 +37,29 @@ export BUSYBOX_URL
 
 #------------------------------------------------------------------------------
 
-all: kernel lighttpd
+all: fileSystem kernel lighttpd
 
-kernel: FORCE
+kernel: FORCE fileSystem
 	cd ${KERNEL_DIR} && quilt push -a && $(MAKE) && make uImage
 
-lighttpd: 
+lighttpd: fileSystem 
 	@(test -d ${LIGHTTPD_VER} || \
 	((test -e ${LIGHTTPD_TAR} || wget http://download.lighttpd.net/lighttpd/releases-1.4.x/${LIGHTTPD_TAR} )\
  	&& tar -xzvf ${LIGHTTPD_TAR} && vrm -f ${LIGHTTPD_TAR}))
-	@echo "Lighttp cross compiled"
+	cd ${LIGHTTPD_DIR} && ./configure --prefix=/usr --host=arm-none-linux-gnueabi --without-pcre --without-zlib --without-bzip2
+	cd ${LIGHTTPD_DIR} && make install DESTDIR=${FS_ROOTD}
+
+# Building the file system structure
+fileSystem:
+	test -d ${FS_ROOTD} || mkdir ${FS_ROOTD}
+	test -d ${FS_ROOTD}/bin || mkdir ${FS_ROOTD}/bin
+	test -d ${FS_ROOTD}/dev || mkdir ${FS_ROOTD}/dev
+	test -d ${FS_ROOTD}/etc || mkdir ${FS_ROOTD}/etc
+	test -d ${FS_ROOTD}/lib || mkdir ${FS_ROOTD}/lib
+	test -d ${FS_ROOTD}/proc || mkdir ${FS_ROOTD}/proc
+	test -d ${FS_ROOTD}/sbin || mkdir ${FS_ROOTD}/sbin
+	test -d ${FS_ROOTD}/usr || mkdir ${FS_ROOTD}/usr
+	test -d ${FS_ROOTD}/usr/bin || mkdir ${FS_ROOTD}/usr/bin
 
 #This line will compile BusyBox: make install ARCH=arm CROSS_COMPILE=arm-none-linux-gnuabi- CONFIG_PRFIX=sudir
 # Downloads and compiles BusyBox
@@ -91,3 +107,6 @@ clean:
 	rm -fr ttyS0
 	rm -fr tty
 	rm -fr console
+	cd ${KERNEL_DIR} && quilt pop -a
+	-rm -Rf fs
+	-rm -Rf lighttp-1.4.29
