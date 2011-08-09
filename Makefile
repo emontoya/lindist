@@ -1,4 +1,4 @@
-.PHONY: all kernel lighttpd fileSystem clean
+.PHONY: all kernel lighttpd fileSystem clean tarea2
 
 # File System root directory
 FS_ROOTD=$(shell pwd)/fs
@@ -37,7 +37,7 @@ export BUSYBOX_URL
 
 #------------------------------------------------------------------------------
 
-all: fileSystem kernel lighttpd
+all: fileSystem kernel lighttpd tarea2
 
 kernel: fileSystem
 	-cd ${KERNEL_DIR} && quilt push -a 
@@ -46,9 +46,15 @@ kernel: fileSystem
 lighttpd: fileSystem 
 	@(test -d ${LIGHTTPD_VER} || \
 	((test -e ${LIGHTTPD_TAR} || wget http://download.lighttpd.net/lighttpd/releases-1.4.x/${LIGHTTPD_TAR} )\
- 	&& tar -xzvf ${LIGHTTPD_TAR} && vrm -f ${LIGHTTPD_TAR}))
+ 	&& tar -xzvf ${LIGHTTPD_TAR}\
+	))
 	cd ${LIGHTTPD_DIR} && ./configure --prefix=/usr --host=arm-none-linux-gnueabi --without-pcre --without-zlib --without-bzip2
 	cd ${LIGHTTPD_DIR} && make install DESTDIR=${FS_ROOTD}
+# && rm -f ${LIGHTTPD_TAR}\
+# 
+
+tarea2: fileSystem
+	test -d empotradosTarea2 || git clone git://github.com/emontoya/empotradosTarea2.git
 
 # Building the file system structure
 fileSystem:
@@ -59,8 +65,14 @@ fileSystem:
 	test -d ${FS_ROOTD}/lib || mkdir ${FS_ROOTD}/lib
 	test -d ${FS_ROOTD}/proc || mkdir ${FS_ROOTD}/proc
 	test -d ${FS_ROOTD}/sbin || mkdir ${FS_ROOTD}/sbin
+	test -d ${FS_ROOTD}/sys || mkdir ${FS_ROOTD}/sys
+	test -d ${FS_ROOTD}/tmp || mkdir ${FS_ROOTD}/tmp
 	test -d ${FS_ROOTD}/usr || mkdir ${FS_ROOTD}/usr
 	test -d ${FS_ROOTD}/usr/bin || mkdir ${FS_ROOTD}/usr/bin
+	test -d ${FS_ROOTD}/usr/lib || mkdir ${FS_ROOTD}/usr/lib
+	test -d ${FS_ROOTD}/usr/sbin || mkdir ${FS_ROOTD}/usr/sbin
+	test -d ${FS_ROOTD}/usr/share || mkdir ${FS_ROOTD}/usr/share
+	test -d ${FS_ROOTD}/var || mkdir ${FS_ROOTD}/var
 
 #This line will compile BusyBox: make install ARCH=arm CROSS_COMPILE=arm-none-linux-gnuabi- CONFIG_PRFIX=sudir
 # Downloads and compiles BusyBox
@@ -111,3 +123,4 @@ clean:
 	-cd ${KERNEL_DIR} && quilt pop -a
 	-rm -Rf fs
 	-rm -Rf lighttpd-1.4.29
+	-rm -Rf empotradosTarea2
