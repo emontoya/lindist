@@ -11,6 +11,9 @@ LIGHTTPD_VER=lighttpd-1.4.29
 LIGHTTPD_DIR=$(shell pwd)/${LIGHTTPD_VER}
 LIGHTTPD_TAR=${LIGHTTPD_VER}.tar.gz
 
+# tarea 2 dir
+TAREA2_DIR=$(shell pwd)/tarea2
+
 # Set and export the cross compiler default path
 CC_PATH=/opt/arm-2009q1
 export CC_PATH
@@ -37,7 +40,7 @@ export BUSYBOX_URL
 
 #------------------------------------------------------------------------------
 
-all: fileSystem kernel lighttpd tarea2
+all: fileSystem kernel lighttpd tarea2_t
 
 kernel: fileSystem
 	-cd ${KERNEL_DIR} && quilt push -a 
@@ -49,12 +52,12 @@ lighttpd: fileSystem
  	&& tar -xzvf ${LIGHTTPD_TAR}\
 	))
 	cd ${LIGHTTPD_DIR} && ./configure --prefix=/usr --host=arm-none-linux-gnueabi --without-pcre --without-zlib --without-bzip2
-	cd ${LIGHTTPD_DIR} && make install DESTDIR=${FS_ROOTD}
-# && rm -f ${LIGHTTPD_TAR}\
-# 
+	cd ${LIGHTTPD_DIR} && make && make install DESTDIR=${FS_ROOTD}
 
-tarea2: fileSystem
-	test -d empotradosTarea2 || git clone git://github.com/emontoya/empotradosTarea2.git
+tarea2_t: fileSystem
+	test -d ${TAREA2_DIR} || git clone -o github git://github.com/emontoya/empotradosTarea2.git ${TAREA2_DIR}
+	cd ${TAREA2_DIR} && ./configure --prefix=/usr --host=arm-none-linux-gnueabi
+	cd ${TAREA2_DIR} && make && make install DESTDIR=${FS_ROOTD}
 
 # Building the file system structure
 fileSystem:
@@ -121,6 +124,7 @@ clean:
 	rm -fr tty
 	rm -fr console
 	-cd ${KERNEL_DIR} && quilt pop -a
-	-rm -Rf fs
-	-rm -Rf lighttpd-1.4.29
-	-rm -Rf empotradosTarea2
+	-rm -Rf ${FS_ROOTD}
+	-rm -f ${LIGHTTPD_TAR}
+	-rm -Rf ${LIGHTTPD_DIR}
+	-rm -Rf ${TAREA2_DIR}
