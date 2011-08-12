@@ -21,6 +21,10 @@ export CC_PATH
 # Add the cross compiler to the PATH
 export PATH := ${CC_PATH}/bin:$(PATH)
 
+# Set and export the ARCH value
+ARCH := arm
+export ARCH
+
 # Set and export the cross compiler
 CROSS_COMPILE ?= arm-none-linux-gnueabi-
 export CROSS_COMPILE
@@ -40,11 +44,11 @@ export BUSYBOX_URL
 
 #------------------------------------------------------------------------------
 
-all: fileSystem kernel lighttpd tarea2_t
+all: busybox kernel lighttpd tarea2_t
 
 kernel: fileSystem
 	-cd ${KERNEL_DIR} && quilt push -a 
-	cd ${KERNEL_DIR}&& $(MAKE) && make uImage
+	-cd ${KERNEL_DIR}&& $(MAKE) && make uImage && cp arch/${ARCH}/boot/uImage ${FS_ROOTD}/ && echo "uImage copied to ${FS_ROOTD}/uImage"
 
 lighttpd: fileSystem 
 	@(test -d ${LIGHTTPD_VER} || \
@@ -60,7 +64,7 @@ tarea2_t: fileSystem
 	cd ${TAREA2_DIR} && make && make install DESTDIR=${FS_ROOTD}
 
 # Building the file system structure
-fileSystem:
+fileSystem: 
 	test -d ${FS_ROOTD} || mkdir ${FS_ROOTD}
 	test -d ${FS_ROOTD}/bin || mkdir ${FS_ROOTD}/bin
 	test -d ${FS_ROOTD}/dev || mkdir ${FS_ROOTD}/dev
@@ -79,10 +83,12 @@ fileSystem:
 
 #This line will compile BusyBox: make install ARCH=arm CROSS_COMPILE=arm-none-linux-gnuabi- CONFIG_PRFIX=sudir
 # Downloads and compiles BusyBox
-busybox:
-	wget ${BUSYBOX_URL}${BUSYBOX_TAR}
-	tar xvjf ${BUSYBOX_TAR}
-	cd ${BUSYBOX_DIR}
+busybox: fileSystem
+	@(test -d ${BUSYBOX_DIR} || \
+	((test -e ${BUSYBOX_TAR} || wget ${BUSYBOX_URL}${BUSYBOX_TAR})\
+ 	&& tar xvjf ${BUSYBOX_TAR}\
+	))
+	cd ${BUSYBOX_DIR} && make defconfig && make install  CONFIG_PREFIX=${FS_ROOTD}
 
 # Creation of the needed devices with mknod
 devices:

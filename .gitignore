@@ -19,3 +19,7 @@ fs
 
 # Homework #2 source code
 tarea2
+
+# busybox directory and tar file
+busybox-1.18.5.tar.bz2
+busybox-1.18.5
