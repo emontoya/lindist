@@ -1,0 +1,6 @@
+#montaje de proc
+proc /proc proc defaults 0 0
+
+#punto de montaje para los dispositivos
+none /dev/pts devpts mode=0622 0 0
+

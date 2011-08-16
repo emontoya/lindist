@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# Remontar el root filesystem en modo rw (requiere de /etc/fstab)
+mount -n -o remount,rw /
+
+# Montar el filesystem /proc
+mount /proc
+
