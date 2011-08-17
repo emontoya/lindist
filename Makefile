@@ -17,6 +17,7 @@ TAREA2_DIR=$(shell pwd)/tarea2
 # Set and export the cross compiler default path
 CC_PATH=/opt/arm-2009q1
 export CC_PATH
+CC_PREFIX=arm-none-linux-gnueabi
 
 # Add the cross compiler to the PATH
 export PATH := ${CC_PATH}/bin:$(PATH)
@@ -55,7 +56,7 @@ lighttpd: fileSystem
 	((test -e ${LIGHTTPD_TAR} || wget http://download.lighttpd.net/lighttpd/releases-1.4.x/${LIGHTTPD_TAR} )\
  	&& tar -xzvf ${LIGHTTPD_TAR}\
 	))
-	cd ${LIGHTTPD_DIR} && ./configure --prefix=/usr --host=arm-none-linux-gnueabi --without-pcre --without-zlib --without-bzip2
+	cd ${LIGHTTPD_DIR} && ./configure --prefix=/usr --host=${CC_PREFIX} --without-pcre --without-zlib --without-bzip2
 	cd ${LIGHTTPD_DIR} && make && make install DESTDIR=${FS_ROOTD}
 
 tarea2_t: fileSystem
@@ -67,6 +68,8 @@ tarea2_t: fileSystem
 fileSystem:
 	test -d ${FS_ROOTD} || mkdir ${FS_ROOTD}
 	test -d ${FS_ROOTD}/bin || mkdir ${FS_ROOTD}/bin
+	test -d ${FS_ROOTD}/boot || mkdir ${FS_ROOTD}/boot
+	test -d ${FS_ROOTD}/boot/images || mkdir ${FS_ROOTD}/boot/images
 	test -d ${FS_ROOTD}/dev || mkdir ${FS_ROOTD}/dev
 	test -d ${FS_ROOTD}/etc || mkdir ${FS_ROOTD}/etc
 	test -d ${FS_ROOTD}/etc/init.d || mkdir ${FS_ROOTD}/etc/init.d
@@ -74,21 +77,30 @@ fileSystem:
 	test -d ${FS_ROOTD}/proc || mkdir ${FS_ROOTD}/proc
 	test -d ${FS_ROOTD}/sbin || mkdir ${FS_ROOTD}/sbin
 	test -d ${FS_ROOTD}/sys || mkdir ${FS_ROOTD}/sys
-	test -d ${FS_ROOTD}/tmp || mkdir ${FS_ROOTD}/tmp
+	test -d ${FS_ROOTD}/tmp || (mkdir ${FS_ROOTD}/tmp && chmod 1777 ${FS_ROOTD}/tmp)
 	test -d ${FS_ROOTD}/usr || mkdir ${FS_ROOTD}/usr
 	test -d ${FS_ROOTD}/usr/bin || mkdir ${FS_ROOTD}/usr/bin
 	test -d ${FS_ROOTD}/usr/lib || mkdir ${FS_ROOTD}/usr/lib
 	test -d ${FS_ROOTD}/usr/sbin || mkdir ${FS_ROOTD}/usr/sbin
 	test -d ${FS_ROOTD}/usr/share || mkdir ${FS_ROOTD}/usr/share
 	test -d ${FS_ROOTD}/var || mkdir ${FS_ROOTD}/var
+	test -d ${FS_ROOTD}/var/lib || mkdir ${FS_ROOTD}/var/lib
+	test -d ${FS_ROOTD}/var/lock || mkdir ${FS_ROOTD}/var/lock
+	test -d ${FS_ROOTD}/var/log || mkdir ${FS_ROOTD}/var/log
+	test -d ${FS_ROOTD}/var/run || mkdir ${FS_ROOTD}/var/run
+	test -d ${FS_ROOTD}/var/tmp || (mkdir ${FS_ROOTD}/var/tmp && chmod 1777 ${FS_ROOTD}/var/tmp)
 
 # Downloads and compiles BusyBox
-busybox: fileSystem 
+busybox: clibs
 	@(test -d ${BUSYBOX_DIR} || \
 	((test -e ${BUSYBOX_TAR} || wget ${BUSYBOX_URL}${BUSYBOX_TAR})\
  	&& tar xvjf ${BUSYBOX_TAR}\
 	))
 	cd ${BUSYBOX_DIR} && make defconfig && make install CONFIG_PREFIX=${FS_ROOTD}
+
+# Copy the libs
+clibs: fileSystem
+	cp -d ${CC_PATH}/${CC_PREFIX}/libc/lib/* ${FS_ROOTD}/lib/ && ${CC_PREFIX}-strip ${FS_ROOTD}/lib/*.so
 
 # Creation of the needed devices with mknod
 devices: fileSystem

@@ -4,5 +4,6 @@
 mount -n -o remount,rw /
 
 # Montar el filesystem /proc
-mount /proc
+echo "Mounting proc"
+mount -t proc /proc /proc
 
