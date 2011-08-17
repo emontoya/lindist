@@ -1,4 +1,4 @@
-.PHONY: all kernel lighttpd tarea2_t fileSystem busybox devices config_files clean
+.PHONY: all kernel lighttpd tarea2_t busybox devices config_files clean
 
 # File System root directory
 FS_ROOTD=$(shell pwd)/fs
@@ -44,7 +44,7 @@ export BUSYBOX_URL
 
 #------------------------------------------------------------------------------
 
-all: config_files kernel lighttpd tarea2_t
+all: busybox config_files kernel lighttpd tarea2_t
 
 kernel: fileSystem
 	-cd ${KERNEL_DIR} && quilt push -a 
@@ -64,20 +64,26 @@ tarea2_t: fileSystem
 	cd ${TAREA2_DIR} && make && make install DESTDIR=${FS_ROOTD}
 
 # Building the file system structure
-fileSystem: busybox
+fileSystem:
+	test -d ${FS_ROOTD} || mkdir ${FS_ROOTD}
+	test -d ${FS_ROOTD}/bin || mkdir ${FS_ROOTD}/bin
 	test -d ${FS_ROOTD}/dev || mkdir ${FS_ROOTD}/dev
 	test -d ${FS_ROOTD}/etc || mkdir ${FS_ROOTD}/etc
 	test -d ${FS_ROOTD}/etc/init.d || mkdir ${FS_ROOTD}/etc/init.d
 	test -d ${FS_ROOTD}/lib || mkdir ${FS_ROOTD}/lib
 	test -d ${FS_ROOTD}/proc || mkdir ${FS_ROOTD}/proc
+	test -d ${FS_ROOTD}/sbin || mkdir ${FS_ROOTD}/sbin
 	test -d ${FS_ROOTD}/sys || mkdir ${FS_ROOTD}/sys
 	test -d ${FS_ROOTD}/tmp || mkdir ${FS_ROOTD}/tmp
+	test -d ${FS_ROOTD}/usr || mkdir ${FS_ROOTD}/usr
+	test -d ${FS_ROOTD}/usr/bin || mkdir ${FS_ROOTD}/usr/bin
 	test -d ${FS_ROOTD}/usr/lib || mkdir ${FS_ROOTD}/usr/lib
+	test -d ${FS_ROOTD}/usr/sbin || mkdir ${FS_ROOTD}/usr/sbin
 	test -d ${FS_ROOTD}/usr/share || mkdir ${FS_ROOTD}/usr/share
 	test -d ${FS_ROOTD}/var || mkdir ${FS_ROOTD}/var
 
 # Downloads and compiles BusyBox
-busybox:
+busybox: fileSystem 
 	@(test -d ${BUSYBOX_DIR} || \
 	((test -e ${BUSYBOX_TAR} || wget ${BUSYBOX_URL}${BUSYBOX_TAR})\
  	&& tar xvjf ${BUSYBOX_TAR}\
@@ -86,15 +92,23 @@ busybox:
 
 # Creation of the needed devices with mknod
 devices: fileSystem
-	cd ${FS_ROOTD}/dev && mknod mem c 1 1 && chmod 600 mem && mknod null c 1 3 && chmod 666 null && mknod zero c 1 5 && chmod 666 zero && mknod random c 1 8&&  chmod 644 random && mknod tty0 c 4 0 && chmod 600 tty0 && mknod tty1 c 4 1 && chmod 600 tty1 && mknod ttyS0 c 4 64 && chmod 600 ttyS0 && mknod tty c 5 0 && chmod 666 tty && mknod console c 5 1 && chmod 600 console
+	cd ${FS_ROOTD}/dev && (test -e mem || (mknod mem c 1 1 && chmod 600 mem)) 
+	cd ${FS_ROOTD}/dev && (test -e null || (mknod null c 1 3 && chmod 666 null))
+	cd ${FS_ROOTD}/dev && (test -e zero || (mknod zero c 1 5 && chmod 666 zero))
+	cd ${FS_ROOTD}/dev && (test -e random || (mknod random c 1 8&&  chmod 644 random))
+	cd ${FS_ROOTD}/dev && (test -e tty0 || (mknod tty0 c 4 0 && chmod 600 tty0))
+	cd ${FS_ROOTD}/dev && (test -e tty1 || (mknod tty1 c 4 1 && chmod 600 tty1))
+	cd ${FS_ROOTD}/dev && (test -e ttyS0 || (mknod ttyS0 c 4 64 && chmod 600 ttyS0))
+	cd ${FS_ROOTD}/dev && (test -e tty || (mknod tty c 5 0 && chmod 666 tty))
+	cd ${FS_ROOTD}/dev && (test -e console || (mknod console c 5 1 && chmod 600 console))
 
 config_files: devices 
-	cp config/fstab ${FS_ROOTD}/etc 
-	cd ${FS_ROOTD}/etc && chown -f root:root fstab && chmod 0644 fstab
+	cp config/fstab ${FS_ROOTD}/etc
+	cd ${FS_ROOTD}/etc && chown -f root:root fstab && chmod 666 fstab
 	cp config/inittab ${FS_ROOTD}/etc 
-	cd ${FS_ROOTD}/etc && chown -f root:root inittab && chmod 0644 inittab
+	cd ${FS_ROOTD}/etc && chown -f root:root inittab && chmod 666 inittab
 	cp config/rcS ${FS_ROOTD}/etc/init.d
-	cd ${FS_ROOTD}/etc/init.d && chown -f root:root rcS && chmod 0644 rcS 
+	cd ${FS_ROOTD}/etc/init.d && chown -f root:root rcS && chmod 777 rcS 
 
 # Target to enforce the initialization
 FORCE:
