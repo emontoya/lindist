@@ -13,3 +13,5 @@ To run this script the following requirements are needed:
 3. The toolchain is expected to be located at /opt/arm-2009q1 according to the project specification.
 
 4. This script has to be ran with Super User permissions. This is needed to create the devices with mknod. 
+
+5. To generate the Root FS and the uImage just type: make all
