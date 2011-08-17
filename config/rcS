@@ -1,9 +1,34 @@
 #!/bin/sh
 
-# Remontar el root filesystem en modo rw (requiere de /etc/fstab)
-mount -n -o remount,rw /
+echo -n " Mounting /proc             : "
+mount -n -t proc /proc /proc
+status $? 1
 
-# Montar el filesystem /proc
-echo "Mounting proc"
-mount -t proc /proc /proc
+echo -n " Mounting /sys              : "
+mount -n -t sysfs sysfs /sys
+status $? 1
 
+echo -n " Mounting /dev              : "
+mount -n -t tmpfs mdev /dev
+status $? 1
+
+echo -n " Populating /dev            : "
+mkdir /dev/input
+mkdir /dev/snd
+
+mdev -s
+status $? 0
+
+#   ---------------------------------------------
+#   Mount the default file systems
+#   ---------------------------------------------
+
+echo -n " Mounting other filesystems : "
+mount -a
+status $? 0
+
+#   ---------------------------------------------
+#   Done!
+#   ---------------------------------------------
+echo ""
+echo "System initialization complete."

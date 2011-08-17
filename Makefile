@@ -43,9 +43,13 @@ export BUSYBOX_TAR
 BUSYBOX_URL=http://www.busybox.net/downloads/
 export BUSYBOX_URL
 
+# Set the toochain's library path
+TOOLCHAIN_LIB_DIR=${CC_PATH}/arm-none-linux-gnueabi/libc/lib
+export TOOLCHAIN_LIB_DIR
+
 #------------------------------------------------------------------------------
 
-all: busybox config_files kernel lighttpd tarea2_t
+all: busybox libraries config_files kernel lighttpd tarea2_t
 
 kernel: fileSystem
 	-cd ${KERNEL_DIR} && quilt push -a 
@@ -72,7 +76,7 @@ fileSystem:
 	test -d ${FS_ROOTD}/boot/images || mkdir ${FS_ROOTD}/boot/images
 	test -d ${FS_ROOTD}/dev || mkdir ${FS_ROOTD}/dev
 	test -d ${FS_ROOTD}/etc || mkdir ${FS_ROOTD}/etc
-	test -d ${FS_ROOTD}/etc/init.d || mkdir ${FS_ROOTD}/etc/init.d
+	test -d ${FS_ROOTD}/etc/init.d || (mkdir ${FS_ROOTD}/etc/init.d && chmod 777 ${FS_ROOTD}/etc/init.d)
 	test -d ${FS_ROOTD}/lib || mkdir ${FS_ROOTD}/lib
 	test -d ${FS_ROOTD}/proc || mkdir ${FS_ROOTD}/proc
 	test -d ${FS_ROOTD}/sbin || mkdir ${FS_ROOTD}/sbin
@@ -91,17 +95,17 @@ fileSystem:
 	test -d ${FS_ROOTD}/var/tmp || (mkdir ${FS_ROOTD}/var/tmp && chmod 1777 ${FS_ROOTD}/var/tmp)
 
 # Downloads and compiles BusyBox
-busybox: clibs
+busybox: libraries
 	@(test -d ${BUSYBOX_DIR} || \
 	((test -e ${BUSYBOX_TAR} || wget ${BUSYBOX_URL}${BUSYBOX_TAR})\
  	&& tar xvjf ${BUSYBOX_TAR}\
 	))
 	cd ${BUSYBOX_DIR} && make defconfig && make install CONFIG_PREFIX=${FS_ROOTD}
 
-# Copy the libs
-clibs: fileSystem
-	cp -d ${CC_PATH}/${CC_PREFIX}/libc/lib/* ${FS_ROOTD}/lib/ && ${CC_PREFIX}-strip ${FS_ROOTD}/lib/*.so
-
+libraries: fileSystem
+	cp -dfra ${CC_PATH}/${CC_PREFIX}/libc/lib/* ${FS_ROOTD}/lib/ && ${CC_PREFIX}-strip ${FS_ROOTD}/lib/*.so
+#	[ "$(ls -A mi_dir)" ] && echo "Not Empty" || echo "Empty"
+	
 # Creation of the needed devices with mknod
 devices: fileSystem
 	cd ${FS_ROOTD}/dev && (test -e mem || (mknod mem c 1 1 && chmod 600 mem)) 
