@@ -42,9 +42,13 @@ export BUSYBOX_TAR
 BUSYBOX_URL=http://www.busybox.net/downloads/
 export BUSYBOX_URL
 
+# Set the toochain's library path
+TOOLCHAIN_LIB_DIR=${CC_PATH}/arm-none-linux-gnueabi/libc/lib
+export TOOLCHAIN_LIB_DIR
+
 #------------------------------------------------------------------------------
 
-all: busybox config_files kernel lighttpd tarea2_t
+all: busybox libraries config_files kernel lighttpd tarea2_t
 
 kernel: fileSystem
 	-cd ${KERNEL_DIR} && quilt push -a 
@@ -90,6 +94,10 @@ busybox: fileSystem
 	))
 	cd ${BUSYBOX_DIR} && make defconfig && make install CONFIG_PREFIX=${FS_ROOTD}
 
+libraries: fileSystem
+	cp -fra ${TOOLCHAIN_LIB_DIR}/* ${FS_ROOTD}/lib
+#	[ "$(ls -A mi_dir)" ] && echo "Not Empty" || echo "Empty"
+	
 # Creation of the needed devices with mknod
 devices: fileSystem
 	cd ${FS_ROOTD}/dev && (test -e mem || (mknod mem c 1 1 && chmod 600 mem)) 
