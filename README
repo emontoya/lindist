@@ -7,11 +7,16 @@ To run this script the following requirements are needed:
   - tar
   - mknod
 
-2. The system expects the following directory structure under the target directory:
-  linux-2.6.29/      source: Provided as course materials
+2. The system expects the archive linux-2.6.29.tar.gz, provided as course material, under the target directory.
 
 3. The toolchain is expected to be located at /opt/arm-2009q1 according to the project specification.
 
 4. This script has to be ran with Super User permissions. This is needed to create the devices with mknod. 
 
-5. To generate the Root FS and the uImage just type: make all
+5. To generate the Root FS and the uImage just type: sudo make
+
+6. The resulting FS could be located on folder fs under target directory
+
+7. The kernel image uImage will be located at the root of the file system: fs/uImage
+
+8. The file system was designed to be used as NFS

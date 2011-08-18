@@ -13,12 +13,14 @@ lighttpd-1.4.29.tar.gz
 
 # Linux kernel source code
 linux-2.6.29
+linux-2.6.29.tar.gz
 
 # File system root directory
 fs
 
 # Homework #2 source code
-tarea2
+tarea2-1.0
+tarea2-1.0.tar.gz
 
 # busybox directory and tar file
 busybox-1.18.5.tar.bz2

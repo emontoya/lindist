@@ -12,7 +12,9 @@ LIGHTTPD_DIR=$(shell pwd)/${LIGHTTPD_VER}
 LIGHTTPD_TAR=${LIGHTTPD_VER}.tar.gz
 
 # tarea 2 dir
-TAREA2_DIR=$(shell pwd)/tarea2
+TAREA2_VER=tarea2-1.0
+TAREA2_DIR=$(shell pwd)/${TAREA2_VER}
+TAREA2_TAR=${TAREA2_VER}.tar.gz
 
 # Set and export the cross compiler default path
 CC_PATH=/opt/arm-2009q1
@@ -64,10 +66,13 @@ lighttpd: fileSystem
 	cd ${LIGHTTPD_DIR} && make && make install DESTDIR=${FS_ROOTD}
 
 tarea2_t: fileSystem
-	test -d ${TAREA2_DIR} || git clone -o github git://github.com/emontoya/empotradosTarea2.git ${TAREA2_DIR}
-	cd ${TAREA2_DIR} && ./configure --prefix=/usr --host=arm-none-linux-gnueabi
+	@echo "${TAREA2_DIR} ${TAREA2_TAR}" 
+	@(test -d ${TAREA2_VER} || \
+	((test -e ${TAREA2_TAR} || wget https://github.com/downloads/emontoya/empotradosTarea2/${TAREA2_TAR} ) && tar -xzvf ${TAREA2_TAR}\
+	))
+#	test -d ${TAREA2_DIR} || git clone -o github git://github.com/emontoya/empotradosTarea2.git ${TAREA2_DIR}
+	cd ${TAREA2_DIR} && ./configure --prefix=/usr --host=${CC_PREFIX}
 	cd ${TAREA2_DIR} && make && make install DESTDIR=${FS_ROOTD}
-
 # Building the file system structure
 fileSystem:
 	test -d ${FS_ROOTD} || mkdir ${FS_ROOTD}
@@ -140,4 +145,5 @@ clean:
 	-rm -Rf ${FS_ROOTD}
 	-rm -f ${LIGHTTPD_TAR}
 	-rm -Rf ${LIGHTTPD_DIR}
+	-rm -Rf ${TAREA2_TAR}
 	-rm -Rf ${TAREA2_DIR}
